@@ -48,7 +48,7 @@ function translate(rawCode, isDigraph, firstLineNotEdge = true, reversePenWidth 
                 let u = items[0], v = items[1]
                 nodes.push(u); nodes.push(v)
                 a[i] = indent + u + ' ' + sep + ' ' + v + ' [style="" color=""'
-                if (items.length >= 3) {
+                if (items.length >= 3) {  // 带有权值的，添加下面部分
                     let w = items[2]
                     weights[i] = w
                     if (w - 0 > maxWeight) maxWeight = w - 0
@@ -60,25 +60,26 @@ function translate(rawCode, isDigraph, firstLineNotEdge = true, reversePenWidth 
                 a[i] = '# ' + a[i]
             }
         } else {
-            //let regexp = /([0-9a-zA-Z]+)\s.+([0-9a-zA-Z]+)\s.+weight\=\"([0-9]*)\"/
-            let regexp = isDigraph ? /(\S+)\s*->\s*(\S+)\s*\[.+weight="([0-9]+)".+\]/ : /(\S+)\s*--\s*(\S+)\s*\[/
-            let matches = a[i].match(regexp)  // 匹配得到 原来边的 始点 u 终点 v 权值 w
-            if (matches && matches.length >= 3) {
-                console.log(matches)
+            let regexp = /(\S+)\s*-[->]{1}\s*(\S+)\s*\[/
+            let matches = a[i].match(regexp)            // 匹配得到旧的顶点 u, v
+            if (matches && matches.length == 3) {
                 let u = matches[1], v = matches[2]
                 oldNodes.push(u, v)
-                if (isDigraph && matches.length >= 4) {
-                    weights[i] = matches[3];
-                    console.log(weights[i])
+                regexp = /(\S+)\s*-[->]{1}\s*(\S+)\s*\[.+weight="([0-9]+)".+\]/
+                matches = a[i].match(regexp)    // 匹配带权值的边
+                if (matches && matches.length == 4) {
+                    weights[i] = matches[3]    // 得到旧的权值
                     let w = weights[i] - 0
-                    if (w > maxWeight) maxWeight = w
-                    if (w < minWeight) minWeight = w
+                    if (w > 0) {
+                        if (w > maxWeight) maxWeight = w
+                        if (w < minWeight) minWeight = w
+                    }
                 }
             }
             if (a[i].indexOf('graph') === -1) a[i] = indent + a[i]  // 老的行保持缩进 （因为前面已经trim过）
         }
     }
-    console.log(nodes); console.log(oldNodes)
+
     nodes = [...(new Set(nodes))].sort().filter(v => !oldNodes.includes(v))  // 新加边的节点，可能原来已经出现过，过滤掉
     for (let i in weights) {
         let w = weights[i]
@@ -101,6 +102,7 @@ function translate(rawCode, isDigraph, firstLineNotEdge = true, reversePenWidth 
 }
 
 document.querySelector('#translate').addEventListener('click', function () {
+    let firstLineNotEdge = document.querySelector('#first-line-not-edge').checked
     let v = document.querySelector('#graph-x').value
     let params = {
         'g1': { isDigraph: false, reversePenWidth: false, reverseWeight: false },
@@ -114,7 +116,7 @@ document.querySelector('#translate').addEventListener('click', function () {
     }
     if (v in params) {
         let rawCode = editor.getSession().getDocument().getValue()
-        let code = translate(rawCode, params[v].isDigraph, params[v].reversePenWidth, params[v].reverseWeight)
+        let code = translate(rawCode, params[v].isDigraph, firstLineNotEdge, params[v].reversePenWidth, params[v].reverseWeight)
         editor.getSession().getDocument().setValue(code)
     }
 })
