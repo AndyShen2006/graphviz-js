@@ -30,7 +30,7 @@ DOT语言使用概要
 + 同秩子图， __subgraph { rank=same; A; B; C; }__
 + 子图风格， __subgraph { style=solid|rounded|dashed|dotted|bold|filled |striped }__
 
-> 使用技巧： dot引擎总是从秩低到秩高画，可以合理利用箭头反向（ __dir=back__ ）和控制同秩实现绘制
+> 使用技巧： dot引擎总是从秩低到秩高画，可以合理利用箭头反向（ __dir=back__ ）和控制同秩实现绘制  
 > 输出格式： 常用的是svg文件和png文件，svg文件是矢量图形，可以编辑，png文件比较通用，但不可修改
 					
 一些实例
@@ -38,6 +38,8 @@ DOT语言使用概要
 
 矩阵式图形
 ---------
+
+![矩阵式图形实例](img/ex0.png)
 
 graph grid  
 {  
