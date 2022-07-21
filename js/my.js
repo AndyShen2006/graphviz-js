@@ -131,6 +131,6 @@ xhr.open('get', 'help.md')
 xhr.send()
 xhr.onreadystatechange = function () {
     if (xhr.readyState == 4 && xhr.status == 200) {
-        document.querySelector('#usage').innerHTML = marked(xhr.responseText)
+        document.querySelector('#usage').innerHTML = marked.parse(xhr.responseText)
     }
 }
