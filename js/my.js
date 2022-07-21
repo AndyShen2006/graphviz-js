@@ -16,7 +16,12 @@ function isNewLine(str) {
 }
 
 function calcWeight(w, minWeight, maxWeight, reverseWeight) {
-    return reverseWeight ? (maxWeight + minWeight - w) : w
+	let weightLimit = 1e6   //  较多边且边权太大(>1e7)库文件viz.js就会超出范围出错
+    let newWeight = reverseWeight ? (maxWeight + minWeight - w) : w
+	if (maxWeight > weightLimit) {
+		newWeight = parseInt(newWeight / maxWeight * weightLimit)
+	}
+	return newWeight < 1 ? 1 : newWeight
 }
 
 function calcPenWidth(w, minWeight, maxWeight, reversePenWidth) {
