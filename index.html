@@ -50,12 +50,15 @@
             </div>
         </div>
         <div id="panes" class="split split-horizontal">
-            <div id="editor" class="split"></div>
+            <div id="editor" class="split" style="display: block;"></div>
 
             <div id="graph" class="split">
                 <div id="options">
+                    <label id="toggle-editor" style="display: inline-block;">
+                        &lt;
+                    </label>
                     <label id="engine">
-                        Engine:
+                        布局引擎:
                         <select>
                             <option>circo</option>
                             <option selected>dot</option>
@@ -67,7 +70,7 @@
                     </label>
 
                     <label id="format">
-                        Format:
+                        输出格式:
                         <select>
                             <option selected>svg</option>
                             <option>png-image-element</option>
@@ -79,7 +82,7 @@
                     </label>
 
                     <label id="raw">
-                        <input type="checkbox"> Raw Output
+                        <input type="checkbox"> Raw方式 输出
                     </label>
                 </div>
                 <div id="output">
@@ -286,6 +289,17 @@
 
         document.querySelector('#raw input').addEventListener('change', function () {
             updateOutput()
+        })
+
+        document.querySelector('#toggle-editor').addEventListener('click', function () {
+            console.log('trigger ' + document.querySelector('#editor').style.display)
+            if (document.querySelector('#editor').style.display == 'block') {
+                document.querySelector('#editor').style.display = 'none'
+                document.querySelector('#toggle-editor').innerHTML = '&gt;'
+            } else {
+                document.querySelector('#editor').style.display = 'block'
+                document.querySelector('#toggle-editor').innerHTML = '&lt;'
+            }
         })
 
         updateGraph()

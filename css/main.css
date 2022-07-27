@@ -239,3 +239,14 @@ a {
 	height: auto;
 	max-width: 100%;
 }
+
+#toggle-editor {
+	color: darkgreen;
+	font: 1.2rem bold;
+	height: 1.8rem;
+}
+
+#toggle-editor:hover {
+	background-color: aqua;
+	color: orange;
+}
