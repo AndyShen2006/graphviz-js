@@ -115,6 +115,45 @@ function translate(rawCode, isDigraph, firstLineNotEdge = true, reversePenWidth 
         + '\n}\n';
 }
 
+function r_translate(code, firstLineNotEdge = true) {
+    let sep = ''
+    let a = code.split('\n'), header = [], data = []
+    let hasWeight = false
+    let i = 0
+    while (i < a.length) {
+        if (a[i].indexOf('##') === 0) {
+            header.push(a[i].trim())
+        } else if (a[i].indexOf('digraph') >= 0) {
+            sep = '->'; break
+        } else if (a[i].indexOf('graph') >= 0) {
+            sep = '--'; break
+        }
+        ++i
+    }
+    if (sep === '') return ''
+    while (i < a.length) {
+        a[i] = a[i].trim()
+        if (a[i].indexOf('weight=') > 0) hasWeight = true
+        if (a[i][0] === '#') {  // 注释行
+            if (/^[ \t\d]+$/.test(a[i].substr(1))) {  // 后续都是空白和数字组成
+                data.push(a[i].substr(1).match(/\d+/g).join('  '))
+            }
+        } else {
+            let pattern = '(\\d+)\\s*' + sep + '\\s*(\\d+)\\s*\\['
+            if (hasWeight) pattern += '.+label="(\\d+)"'
+            let reg = new RegExp(pattern)
+            let fields = reg.exec(a[i])
+            if (fields) {
+                fields.shift()
+                data.push(fields.join('  '))
+            }
+        }
+        i++
+    }
+    return header.join('\n') + '\n' + data.join('\n');
+}
+
+
 document.querySelector('#translate').addEventListener('click', function () {
     let firstLineNotEdge = document.querySelector('#first-line-not-edge').checked
     let v = document.querySelector('#graph-x').value
@@ -133,6 +172,14 @@ document.querySelector('#translate').addEventListener('click', function () {
         let code = translate(rawCode, params[v].isDigraph, firstLineNotEdge, params[v].reversePenWidth, params[v].reverseWeight)
         editor.getSession().getDocument().setValue(code)
     }
+})
+
+document.querySelector('#r-translate').addEventListener('click', function () {
+    let firstLineNotEdge = document.querySelector('#first-line-not-edge').checked
+    let code = editor.getSession().getDocument().getValue()
+    let rawCode = r_translate(code, firstLineNotEdge)
+    if (rawCode.length > 0)
+        document.querySelector('#code-area').value = rawCode
 })
 
 document.querySelector('#copy-to-left').addEventListener('click', function () {

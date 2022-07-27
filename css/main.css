@@ -226,6 +226,13 @@ a {
 	margin: 10px auto;
 }
 
+#r-translate {
+	background-color: cornflowerblue;
+	position: absolute;
+	right: 0;
+	margin-right: 1rem;
+}
+
 #usage {
 	display: none;
 	overflow: scroll;
