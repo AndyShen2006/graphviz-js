@@ -16,12 +16,12 @@ function isNewLine(str) {
 }
 
 function calcWeight(w, minWeight, maxWeight, reverseWeight) {
-	let weightLimit = 1e6   //  较多边且边权太大(>1e7)库文件viz.js就会超出范围出错
+    let weightLimit = 1e6   //  较多边且边权太大(>1e7)库文件viz.js就会超出范围出错
     let newWeight = reverseWeight ? (maxWeight + minWeight - w) : w
-	if (maxWeight > weightLimit) {
-		newWeight = parseInt(newWeight / maxWeight * weightLimit)
-	}
-	return newWeight < 1 ? 1 : newWeight
+    if (maxWeight > weightLimit) {
+        newWeight = parseInt(newWeight / maxWeight * weightLimit)
+    }
+    return newWeight < 1 ? 1 : newWeight
 }
 
 function calcPenWidth(w, minWeight, maxWeight, reversePenWidth) {
@@ -37,6 +37,8 @@ function translate(rawCode, isDigraph, firstLineNotEdge = true, reversePenWidth 
     let nodes = [], weights = [], oldNodes = []
     let minWeight = 999999999, maxWeight = -1
     let isFirstLine = isNewGraph
+    let commentRemainedLine = false
+    let endInputByZeroToZero = true   // 0 -- 0 边表示边输入结束，注释掉后续行
     for (let i = 0; i < a.length; ++i) {  // 扫描所有行
         a[i] = a[i].trim()
         if (a[i].indexOf('##') === 0) {  // ## 开头的为标题行
@@ -48,9 +50,16 @@ function translate(rawCode, isDigraph, firstLineNotEdge = true, reversePenWidth 
             isFirstLine = false, a[i] = '# ' + a[i]; continue  // 首行非边将注释出现
         }
         if (isNewLine(a[i])) {
+            if (commentRemainedLine) {
+                a[i] = '# ' + a[i]; continue
+            }
             let items = a[i].split(/[ \t]+/)
             if (items.length >= 2) {
                 let u = items[0], v = items[1]
+                if (u == 0 && v == 0 && endInputByZeroToZero) {
+                    commentRemainedLine = true
+                    a[i] = '# ' + a[i]; continue
+                }
                 nodes.push(u); nodes.push(v)
                 a[i] = indent + u + ' ' + sep + ' ' + v + ' [style="" color=""'
                 if (items.length >= 3) {  // 带有权值的，添加下面部分
@@ -85,7 +94,7 @@ function translate(rawCode, isDigraph, firstLineNotEdge = true, reversePenWidth 
         }
     }
 
-    nodes = [...(new Set(nodes))].sort().filter(v => !oldNodes.includes(v))  // 新加边的节点，可能原来已经出现过，过滤掉
+    nodes = [...(new Set(nodes))].sort((a, b) => a - b).filter(v => !oldNodes.includes(v))  // 新加边的节点，可能原来已经出现过，过滤掉
     for (let i in weights) {
         let w = weights[i]
         let penWidth = calcPenWidth(w, minWeight, maxWeight, reversePenWidth)
