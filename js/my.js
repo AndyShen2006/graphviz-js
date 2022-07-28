@@ -39,6 +39,7 @@ function translate(rawCode, isDigraph, firstLineNotEdge = true, reversePenWidth 
     let isFirstLine = isNewGraph
     let commentRemainedLine = false
     let endInputByZeroToZero = true   // 0 -- 0 边表示边输入结束，注释掉后续行
+    let cntNode = -1, oldMaxId = -1
     for (let i = 0; i < a.length; ++i) {  // 扫描所有行
         a[i] = a[i].trim()
         if (a[i].indexOf('##') === 0) {  // ## 开头的为标题行
@@ -47,7 +48,10 @@ function translate(rawCode, isDigraph, firstLineNotEdge = true, reversePenWidth 
         }
         if (a[i].length === 0 || a[i].indexOf('#') === 0) continue  // 中间空行 和 #开头的注释行仍按原样输出
         if (isFirstLine && firstLineNotEdge) {
-            isFirstLine = false, a[i] = '# ' + a[i]; continue  // 首行非边将注释出现
+            isFirstLine = false, a[i] = '# ' + a[i];
+            let matches = a[i].match(/\d+/)
+            if (matches && matches[0] > 0) cntNode = matches[0]  // 首行非边第一个数字将作为点数值
+            continue  // 首行非边将注释出现
         }
         if (isNewLine(a[i])) {
             if (commentRemainedLine) {
@@ -55,7 +59,7 @@ function translate(rawCode, isDigraph, firstLineNotEdge = true, reversePenWidth 
             }
             let items = a[i].split(/[ \t]+/)
             if (items.length >= 2) {
-                let u = items[0], v = items[1]
+                let u = parseInt(items[0]), v = parseInt(items[1])
                 if (u == 0 && v == 0 && endInputByZeroToZero) {
                     commentRemainedLine = true
                     a[i] = '# ' + a[i]; continue
@@ -74,10 +78,17 @@ function translate(rawCode, isDigraph, firstLineNotEdge = true, reversePenWidth 
                 a[i] = '# ' + a[i]
             }
         } else {
+            let match = a[i].match(/(\d+)\s*\[label=/)
+            if (match && match.length == 2) {
+                let id = parseInt(match[1])  // 记录旧的点列表中最大的 id
+                oldMaxId = id > oldMaxId ? id : oldMaxId
+                a[i] = indent + a[i]
+                continue
+            }
             let regexp = /(\S+)\s*-[->]{1}\s*(\S+)\s*\[/
             let matches = a[i].match(regexp)            // 匹配得到旧的顶点 u, v
             if (matches && matches.length == 3) {
-                let u = matches[1], v = matches[2]
+                let u = parseInt(matches[1]), v = parseInt(matches[2])
                 oldNodes.push(u, v)
                 regexp = /(\S+)\s*-[->]{1}\s*(\S+)\s*\[.+weight="([0-9]+)".+\]/
                 matches = a[i].match(regexp)    // 匹配带权值的边
@@ -103,9 +114,31 @@ function translate(rawCode, isDigraph, firstLineNotEdge = true, reversePenWidth 
     }
 
     let b = []
-    for (let node of nodes) {
-        b.push(indent + node + ' [label="' + node + '" shape="" color="" style=""]')  // 新点数据
+
+    let newMaxId = Math.max(...nodes)
+
+    if (isNewGraph && cntNode > 0) {  // 是新图
+        for (let i = 1; i <= cntNode; i++) {
+            if (nodes.indexOf(i) === -1) {   // 不在边中，是孤点
+                b.push(indent + i + ' [label="' + i + '" shape="" color="grey" style="filled"]')
+            } else {  // 边中的点
+                b.push(indent + i + ' [label="' + i + '" shape="" color="" style=""]')
+            }
+        }
+    } else if (!isNewGraph && oldMaxId > 0 && newMaxId > oldMaxId) {
+        for (let i = oldMaxId + 1; i <= newMaxId; i++) {
+            if (nodes.indexOf(i) === -1) {   // 不在边中，是孤点
+                b.push(indent + i + ' [label="' + i + '" shape="" color="grey" style="filled"]')
+            } else {  // 边中的点
+                b.push(indent + i + ' [label="' + i + '" shape="" color="" style=""]')
+            }
+        }
     }
+
+    // for (let node of nodes) {
+    //     b.push(indent + node + ' [label="' + node + '" shape="" color="" style=""]')  // 新点数据
+    // }
+
     if (!isNewGraph) {  // 不是新图
         while (a.pop().indexOf('}') === -1);   // 从 a[] 尾部开始找，一直到尾部 } 为止
         return header.join('\n') + a.join('\n') + (b.length > 0 ? ('\n' + b.join('\n')) : '') + '\n}\n'; // 可能有新的节点产生
