@@ -25,6 +25,7 @@ function calcWeight(w, minWeight, maxWeight, reverseWeight) {
 }
 
 function calcPenWidth(w, minWeight, maxWeight, reversePenWidth) {
+    if (minWeight == maxWeight) return 0.5;  // fix
     return (reversePenWidth ? 2.0 - 1.9 * (w - minWeight) / (maxWeight - minWeight) :
         1.9 * (w - minWeight) / (maxWeight - minWeight) + 0.1).toFixed(1)
 }
