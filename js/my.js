@@ -174,12 +174,11 @@ function r_translate(code, firstLineNotEdge = true) {
             }
         } else {
             let pattern = '(\\d+)\\s*' + sep + '\\s*(\\d+)\\s*\\['
-            if (hasWeight) pattern += '.+label="(\\d+)"'
+            if (hasWeight) pattern += '.+label="(\\-?\\d+(\\.\\d+)?)"'  // fix float and negative
             let reg = new RegExp(pattern)
             let fields = reg.exec(a[i])
             if (fields) {
-                fields.shift()
-                data.push(fields.join('  '))
+                data.push(fields.slice(1, 4).join('  '))
             }
         }
         i++
