@@ -228,3 +228,18 @@ xhr.onreadystatechange = function () {
         document.querySelector('#usage').innerHTML = marked.parse(xhr.responseText)
     }
 }
+
+document.querySelector('#reverse-edge').addEventListener('click', function () {
+    let str = editor.getSession().getTextRange(editor.getSelectionRange())
+    if (!str) return
+    let allRows = editor.getSession().getDocument().getValue()
+    let pattern = /(\d+)(\s*-[-|>]\s*)(\d+)(\s*\[)/g
+    let replaceMap = []
+    while (result = pattern.exec(str)) {
+        replaceMap.push({ old: result[0], new: result[3] + result[2] + result[1] + result[4] })
+    }
+    for (let i = 0; i < replaceMap.length; i++) {
+        allRows = allRows.replace(replaceMap[i].old, replaceMap[i].new)
+    }
+    editor.getSession().getDocument().setValue(allRows)
+})
