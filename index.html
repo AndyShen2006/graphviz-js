@@ -92,12 +92,12 @@
             </div>
 
             <div id="code-pad">
-                <div class="hint">左边编辑器对中文和符号“不友好”，输入也要困难一些，因此，可以先在此输入边列表，再拷贝到左边，也可以手动拷贝部分内容到左边。</div>
+                <div class="hint">可以先在此临时代码面板输入边列表，再拷贝到左边，也可以手动拷贝部分内容到左边。</div>
                 <div class="hint">##开头的为标题行（导出时，文件名为首个标题行或时间戳），# 开头的为注释行</div>
                 <textarea id="code-area"></textarea>
                 <div id="copy-to-left-container">
                     <button id="copy-to-left">拷贝到左</button>
-                    <span class="hint">将自动清空原来内容</span>
+                    <span class="hint">将自动清空左边原来代码内容</span>
                     <button id="r-translate">逆转换</button>
                 </div>
                 <div class="hint">
@@ -109,6 +109,7 @@
                         <li>选择目标图类型为 有向图（权大长细），因为题目中权值大的路径远</li>
                         <li>点击“转换”（默认首个数据行不作为边，将自动注释掉）</li>
                         <li>可以在边 1 -> 4 下面添加2条边： 2 5 7 和 3 5 2，然后再次点击“转换”</li>
+                        <li>可以选中要切换方向的边所在行，然后点击“边反向”来改变边的方向（对无向图会影响布局）</li>
                         <li>可以根据需要调整图的节点和边风格，可以导出文件保存（以便后期调整）</li>
                     </ol>
                 </div>
